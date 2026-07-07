@@ -79,10 +79,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "MOHI TTI — Smart Student Management & Analytics" },
       { name: "description", content: "Enterprise Student Management Information System for MOHI Technical Training Institute. Track enrolment, examinations, attachment, placement and discipleship — all in one place." },
-      { property: "og:title", content: "MOHI TTI — Smart Student Management" },
-      { property: "og:description", content: "Modern SMIS for MOHI Technical Training Institute with AI-powered insights." },
+      { property: "og:title", content: "MOHI TTI — Smart Student Management & Analytics" },
+      { property: "og:description", content: "Enterprise Student Management Information System for MOHI Technical Training Institute. Track enrolment, examinations, attachment, placement and discipleship — all in one place." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "MOHI TTI — Smart Student Management & Analytics" },
+      { name: "twitter:description", content: "Enterprise Student Management Information System for MOHI Technical Training Institute. Track enrolment, examinations, attachment, placement and discipleship — all in one place." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7d82a824-63ac-4992-a7a2-91ac921d635d/id-preview-b651efe8--13ed944b-8af1-4843-8c05-381c8a61bcfb.lovable.app-1783415932958.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7d82a824-63ac-4992-a7a2-91ac921d635d/id-preview-b651efe8--13ed944b-8af1-4843-8c05-381c8a61bcfb.lovable.app-1783415932958.png" },
     ],
     links: [
       {
