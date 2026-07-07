@@ -1,0 +1,14 @@
+# MOHI Technical Training Institute
+
+> Smart Student Management & Analytics Platform for MOHI TTI — enrolment, examinations, industrial attachment, job placement, and discipleship in one enterprise dashboard.
+
+## Pages
+- [Dashboard](/dashboard): Institutional performance overview with KPIs and charts
+- [Students](/students): Student registry with filters
+- [Departments](/departments): 8 departments and courses
+- [Examinations](/exams): Internal, NITA and KNEC results
+- [Attachment](/attachment): Industrial attachment tracking
+- [Job Placement](/placement): Graduate employment outcomes
+- [Discipleship](/discipleship): Spiritual growth journey tracking
+- [AI Insights](/insights): Automated recommendations
+- [Reports](/reports): Downloadable filtered reports

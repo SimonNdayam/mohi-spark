@@ -9,38 +9,189 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppTrainersRouteImport } from './routes/_app/trainers'
+import { Route as AppStudentsRouteImport } from './routes/_app/students'
+import { Route as AppReportsRouteImport } from './routes/_app/reports'
+import { Route as AppPlacementRouteImport } from './routes/_app/placement'
+import { Route as AppInsightsRouteImport } from './routes/_app/insights'
+import { Route as AppExamsRouteImport } from './routes/_app/exams'
+import { Route as AppDiscipleshipRouteImport } from './routes/_app/discipleship'
+import { Route as AppDepartmentsRouteImport } from './routes/_app/departments'
+import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppAttachmentRouteImport } from './routes/_app/attachment'
+import { Route as AppAcademicRouteImport } from './routes/_app/academic'
 
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppTrainersRoute = AppTrainersRouteImport.update({
+  id: '/trainers',
+  path: '/trainers',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppStudentsRoute = AppStudentsRouteImport.update({
+  id: '/students',
+  path: '/students',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReportsRoute = AppReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPlacementRoute = AppPlacementRouteImport.update({
+  id: '/placement',
+  path: '/placement',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInsightsRoute = AppInsightsRouteImport.update({
+  id: '/insights',
+  path: '/insights',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppExamsRoute = AppExamsRouteImport.update({
+  id: '/exams',
+  path: '/exams',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDiscipleshipRoute = AppDiscipleshipRouteImport.update({
+  id: '/discipleship',
+  path: '/discipleship',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDepartmentsRoute = AppDepartmentsRouteImport.update({
+  id: '/departments',
+  path: '/departments',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardRoute = AppDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAttachmentRoute = AppAttachmentRouteImport.update({
+  id: '/attachment',
+  path: '/attachment',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAcademicRoute = AppAcademicRouteImport.update({
+  id: '/academic',
+  path: '/academic',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/academic': typeof AppAcademicRoute
+  '/attachment': typeof AppAttachmentRoute
+  '/dashboard': typeof AppDashboardRoute
+  '/departments': typeof AppDepartmentsRoute
+  '/discipleship': typeof AppDiscipleshipRoute
+  '/exams': typeof AppExamsRoute
+  '/insights': typeof AppInsightsRoute
+  '/placement': typeof AppPlacementRoute
+  '/reports': typeof AppReportsRoute
+  '/students': typeof AppStudentsRoute
+  '/trainers': typeof AppTrainersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/academic': typeof AppAcademicRoute
+  '/attachment': typeof AppAttachmentRoute
+  '/dashboard': typeof AppDashboardRoute
+  '/departments': typeof AppDepartmentsRoute
+  '/discipleship': typeof AppDiscipleshipRoute
+  '/exams': typeof AppExamsRoute
+  '/insights': typeof AppInsightsRoute
+  '/placement': typeof AppPlacementRoute
+  '/reports': typeof AppReportsRoute
+  '/students': typeof AppStudentsRoute
+  '/trainers': typeof AppTrainersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_app': typeof AppRouteWithChildren
+  '/_app/academic': typeof AppAcademicRoute
+  '/_app/attachment': typeof AppAttachmentRoute
+  '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/departments': typeof AppDepartmentsRoute
+  '/_app/discipleship': typeof AppDiscipleshipRoute
+  '/_app/exams': typeof AppExamsRoute
+  '/_app/insights': typeof AppInsightsRoute
+  '/_app/placement': typeof AppPlacementRoute
+  '/_app/reports': typeof AppReportsRoute
+  '/_app/students': typeof AppStudentsRoute
+  '/_app/trainers': typeof AppTrainersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/academic'
+    | '/attachment'
+    | '/dashboard'
+    | '/departments'
+    | '/discipleship'
+    | '/exams'
+    | '/insights'
+    | '/placement'
+    | '/reports'
+    | '/students'
+    | '/trainers'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/academic'
+    | '/attachment'
+    | '/dashboard'
+    | '/departments'
+    | '/discipleship'
+    | '/exams'
+    | '/insights'
+    | '/placement'
+    | '/reports'
+    | '/students'
+    | '/trainers'
+  id:
+    | '__root__'
+    | '/'
+    | '/_app'
+    | '/_app/academic'
+    | '/_app/attachment'
+    | '/_app/dashboard'
+    | '/_app/departments'
+    | '/_app/discipleship'
+    | '/_app/exams'
+    | '/_app/insights'
+    | '/_app/placement'
+    | '/_app/reports'
+    | '/_app/students'
+    | '/_app/trainers'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +199,119 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/trainers': {
+      id: '/_app/trainers'
+      path: '/trainers'
+      fullPath: '/trainers'
+      preLoaderRoute: typeof AppTrainersRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/students': {
+      id: '/_app/students'
+      path: '/students'
+      fullPath: '/students'
+      preLoaderRoute: typeof AppStudentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/reports': {
+      id: '/_app/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AppReportsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/placement': {
+      id: '/_app/placement'
+      path: '/placement'
+      fullPath: '/placement'
+      preLoaderRoute: typeof AppPlacementRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/insights': {
+      id: '/_app/insights'
+      path: '/insights'
+      fullPath: '/insights'
+      preLoaderRoute: typeof AppInsightsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/exams': {
+      id: '/_app/exams'
+      path: '/exams'
+      fullPath: '/exams'
+      preLoaderRoute: typeof AppExamsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/discipleship': {
+      id: '/_app/discipleship'
+      path: '/discipleship'
+      fullPath: '/discipleship'
+      preLoaderRoute: typeof AppDiscipleshipRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/departments': {
+      id: '/_app/departments'
+      path: '/departments'
+      fullPath: '/departments'
+      preLoaderRoute: typeof AppDepartmentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard': {
+      id: '/_app/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/attachment': {
+      id: '/_app/attachment'
+      path: '/attachment'
+      fullPath: '/attachment'
+      preLoaderRoute: typeof AppAttachmentRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/academic': {
+      id: '/_app/academic'
+      path: '/academic'
+      fullPath: '/academic'
+      preLoaderRoute: typeof AppAcademicRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
+interface AppRouteChildren {
+  AppAcademicRoute: typeof AppAcademicRoute
+  AppAttachmentRoute: typeof AppAttachmentRoute
+  AppDashboardRoute: typeof AppDashboardRoute
+  AppDepartmentsRoute: typeof AppDepartmentsRoute
+  AppDiscipleshipRoute: typeof AppDiscipleshipRoute
+  AppExamsRoute: typeof AppExamsRoute
+  AppInsightsRoute: typeof AppInsightsRoute
+  AppPlacementRoute: typeof AppPlacementRoute
+  AppReportsRoute: typeof AppReportsRoute
+  AppStudentsRoute: typeof AppStudentsRoute
+  AppTrainersRoute: typeof AppTrainersRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppAcademicRoute: AppAcademicRoute,
+  AppAttachmentRoute: AppAttachmentRoute,
+  AppDashboardRoute: AppDashboardRoute,
+  AppDepartmentsRoute: AppDepartmentsRoute,
+  AppDiscipleshipRoute: AppDiscipleshipRoute,
+  AppExamsRoute: AppExamsRoute,
+  AppInsightsRoute: AppInsightsRoute,
+  AppPlacementRoute: AppPlacementRoute,
+  AppReportsRoute: AppReportsRoute,
+  AppStudentsRoute: AppStudentsRoute,
+  AppTrainersRoute: AppTrainersRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
