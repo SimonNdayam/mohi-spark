@@ -87,6 +87,38 @@ export async function parseFile(file: File): Promise<Record<string, unknown>[]> 
   throw new Error("Unsupported file. Please upload .csv, .xls or .xlsx");
 }
 
+function normalizeTokens(s: string | undefined): string[] {
+  if (!s) return [];
+  return String(s)
+    .toLowerCase()
+    .replace(/["'()]/g, "")
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
+}
+
+function headerMatchesField(header: string, fieldKey: string, fieldLabel: string): boolean {
+  const hTokens = normalizeTokens(header);
+  const fTokens = [...normalizeTokens(fieldKey), ...normalizeTokens(fieldLabel)];
+  if (hTokens.length === 0 || fTokens.length === 0) return false;
+
+  // Exact token match
+  if (hTokens.some((t) => fTokens.includes(t))) return true;
+
+  // Prefix matches (adm -> admission)
+  for (const ht of hTokens) {
+    for (const ft of fTokens) {
+      if (ft.startsWith(ht) || ht.startsWith(ft)) return true;
+    }
+  }
+
+  // Contains
+  const h = hTokens.join("");
+  const f = fTokens.join("");
+  if (h.includes(f) || f.includes(h)) return true;
+
+  return false;
+}
+
 export async function importAndValidate<T = Record<string, unknown>>(
   file: File,
   schema: DatasetSchema,
@@ -95,9 +127,33 @@ export async function importAndValidate<T = Record<string, unknown>>(
   const valid: T[] = [];
   const invalid: ImportResult<T>["invalid"] = [];
 
+  // Build header -> schema key mapping using first row keys
+  const headerKeys = rows.length > 0 ? Object.keys(rows[0]) : [];
+  const headerMap: Record<string, string | null> = {}; // schemaKey -> headerKey
+
+  for (const f of schema.fields) {
+    const found = headerKeys.find((h) => headerMatchesField(h, f.key, f.label));
+    headerMap[f.key] = found ?? null;
+  }
+
   rows.forEach((raw, i) => {
     const rowNumber = i + 2; // header + 1-indexed
-    const { data, errors } = validateRow(schema, raw, rowNumber);
+
+    // Create remapped row where keys match schema.field.key
+    const remapped: Record<string, unknown> = {};
+    for (const f of schema.fields) {
+      const hk = headerMap[f.key];
+      if (hk && raw.hasOwnProperty(hk)) remapped[f.key] = raw[hk as string];
+      else if (raw.hasOwnProperty(f.key)) remapped[f.key] = raw[f.key as string];
+      else if (raw.hasOwnProperty(f.label)) remapped[f.key] = raw[f.label as string];
+      else {
+        // try to find any header that somewhat matches tokens
+        const alt = headerKeys.find((h) => headerMatchesField(h, f.key, f.label));
+        if (alt && raw.hasOwnProperty(alt)) remapped[f.key] = raw[alt];
+      }
+    }
+
+    const { data, errors } = validateRow(schema, remapped, rowNumber);
     if (errors.length === 0) valid.push(data as T);
     else invalid.push({ row: rowNumber, data, errors });
   });
