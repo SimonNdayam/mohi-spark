@@ -130,10 +130,27 @@ export async function importAndValidate<T = Record<string, unknown>>(
   // Build header -> schema key mapping using first row keys
   const headerKeys = rows.length > 0 ? Object.keys(rows[0]) : [];
   const headerMap: Record<string, string | null> = {}; // schemaKey -> headerKey
+  const usedHeaders = new Set<string>();
 
+  // Helper to normalize header for exact matching
+  const normalize = (s: string) => String(s ?? "").replace(/^\uFEFF/, "").trim().toLowerCase();
+
+  // 1) Exact matches by key or label (case-insensitive)
   for (const f of schema.fields) {
-    const found = headerKeys.find((h) => headerMatchesField(h, f.key, f.label));
-    headerMap[f.key] = found ?? null;
+    const exact = headerKeys.find((h) => {
+      const n = normalize(h);
+      return n === normalize(f.key) || n === normalize(f.label) || n === normalize(f.label).replace(/\s+/g, " ") || n === normalize(f.key).replace(/\s+/g, "");
+    });
+    if (exact) { headerMap[f.key] = exact; usedHeaders.add(exact); }
+    else headerMap[f.key] = null;
+  }
+
+  // 2) Tokenized fuzzy matches for remaining fields, prefer unused headers
+  for (const f of schema.fields) {
+    if (headerMap[f.key]) continue; // already assigned
+    const found = headerKeys.find((h) => !usedHeaders.has(h) && headerMatchesField(h, f.key, f.label));
+    if (found) { headerMap[f.key] = found; usedHeaders.add(found); }
+    else headerMap[f.key] = null;
   }
 
   rows.forEach((raw, i) => {
@@ -147,7 +164,7 @@ export async function importAndValidate<T = Record<string, unknown>>(
       else if (raw.hasOwnProperty(f.key)) remapped[f.key] = raw[f.key as string];
       else if (raw.hasOwnProperty(f.label)) remapped[f.key] = raw[f.label as string];
       else {
-        // try to find any header that somewhat matches tokens
+        // try to find any unused header that somewhat matches tokens
         const alt = headerKeys.find((h) => headerMatchesField(h, f.key, f.label));
         if (alt && raw.hasOwnProperty(alt)) remapped[f.key] = raw[alt];
       }
