@@ -37,7 +37,19 @@ function DashboardPage() {
         title="Institutional Overview"
         description="Live snapshot of enrolment, academic performance, attachment, placement and discipleship — Academic Year 2025."
       >
-        <Button variant="outline" size="sm">Export</Button>
+        <ExportMenu
+          filenameBase="dashboard-kpis"
+          title="Institutional Overview — KPIs"
+          subtitle="Academic Year 2025"
+          columns={[
+            { key: "metric", label: "Metric" },
+            { key: "value", label: "Value" },
+          ]}
+          data={Object.entries(kpis).map(([k, v]) => ({
+            metric: k.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase()),
+            value: v,
+          }))}
+        />
         <Button size="sm" className="gradient-primary text-primary-foreground border-0">
           <Sparkles className="h-4 w-4 mr-1.5" /> AI Summary
         </Button>
