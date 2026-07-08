@@ -1,13 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Search, Filter, Download, UserPlus } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Search, Filter, UserPlus, Upload } from "lucide-react";
 import { PageHeader } from "@/components/ui-blocks/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { students, departments } from "@/lib/mock-data";
+import { students as seedStudents, departments, type Student } from "@/lib/mock-data";
+import { ExportMenu } from "@/components/io/ExportMenu";
+import { ImportDialog } from "@/components/io/ImportDialog";
+import { studentSchema, type ImportedStudent } from "@/lib/io/schemas";
 
 export const Route = createFileRoute("/_app/students")({
   component: StudentsPage,
