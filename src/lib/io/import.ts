@@ -1,5 +1,5 @@
 // CSV/XLSX parsing + validation using a DatasetSchema.
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import Papa from "papaparse";
 import { validateRow, type DatasetSchema, type ImportResult } from "./schemas";
 
@@ -15,10 +15,27 @@ async function readCsv(file: File): Promise<Record<string, unknown>[]> {
 
 async function readXlsx(file: File): Promise<Record<string, unknown>[]> {
   const buf = await file.arrayBuffer();
-  const wb = XLSX.read(buf, { type: "array" });
-  const sheetName = wb.SheetNames.find((n) => n.toLowerCase() === "data") ?? wb.SheetNames[0];
-  const ws = wb.Sheets[sheetName];
-  return XLSX.utils.sheet_to_json<Record<string, unknown>>(ws, { defval: "" });
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(buf);
+  const sheet = workbook.worksheets.find((w) => w.name.toLowerCase() === "data") ?? workbook.worksheets[0];
+  if (!sheet) return [];
+  // Read header
+  const headerRow = sheet.getRow(1);
+  const headers: string[] = [];
+  headerRow.eachCell({ includeEmpty: false }, (cell, colNumber) => {
+    headers.push(String(cell.value ?? "").trim());
+  });
+  const rows: Record<string, unknown>[] = [];
+  sheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+    if (rowNumber === 1) return; // skip header
+    const obj: Record<string, unknown> = {};
+    headers.forEach((h, i) => {
+      const cell = row.getCell(i + 1);
+      obj[h] = cell.value ?? "";
+    });
+    rows.push(obj);
+  });
+  return rows;
 }
 
 export async function parseFile(file: File): Promise<Record<string, unknown>[]> {

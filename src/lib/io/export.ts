@@ -1,5 +1,5 @@
 // Export helpers: CSV, XLSX and PDF (table) for filtered/reportable datasets.
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import Papa from "papaparse";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -41,19 +41,23 @@ export function exportCsv(
   download(new Blob([csv], { type: "text/csv;charset=utf-8;" }), `${filenameBase}-${timestamp()}.csv`);
 }
 
-export function exportXlsx(
+export async function exportXlsx(
   filenameBase: string,
   columns: ExportColumn[],
   data: Record<string, unknown>[],
   sheetName = "Data",
 ) {
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.json_to_sheet(toRows(data, columns), {
-    header: columns.map((c) => c.label),
-  });
-  ws["!cols"] = columns.map((c) => ({ wch: Math.max(12, c.label.length + 2) }));
-  XLSX.utils.book_append_sheet(wb, ws, sheetName.slice(0, 30));
-  XLSX.writeFile(wb, `${filenameBase}-${timestamp()}.xlsx`);
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet(sheetName.slice(0, 31));
+  // Set header row
+  ws.columns = columns.map((c) => ({ header: c.label, key: c.key, width: Math.max(12, c.label.length + 2) }));
+  // Add rows
+  for (const r of data) {
+    const row = columns.map((c) => (r[c.key] === undefined || r[c.key] === null ? "" : String(r[c.key])));
+    ws.addRow(row);
+  }
+  const buffer = await wb.xlsx.writeBuffer();
+  download(new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${filenameBase}-${timestamp()}.xlsx`);
 }
 
 export function exportPdf(
@@ -132,26 +136,25 @@ export function downloadTemplateCsv(schema: DatasetSchema) {
   );
 }
 
-export function downloadTemplateXlsx(schema: DatasetSchema) {
+export async function downloadTemplateXlsx(schema: DatasetSchema) {
   const cols = templateColumns(schema);
-  const wb = XLSX.utils.book_new();
+  const wb = new ExcelJS.Workbook();
 
   // Data sheet with example row.
-  const dataWs = XLSX.utils.json_to_sheet(
-    [Object.fromEntries(cols.map((c) => [c.label, schema.fields.find((f) => f.key === c.key)?.example ?? ""]))],
-    { header: cols.map((c) => c.label) },
-  );
-  dataWs["!cols"] = cols.map((c) => ({ wch: Math.max(16, c.label.length + 4) }));
-  XLSX.utils.book_append_sheet(wb, dataWs, "Data");
+  const dataSheet = wb.addWorksheet("Data");
+  dataSheet.columns = cols.map((c) => ({ header: c.label, key: c.key, width: Math.max(16, c.label.length + 4) }));
+  const exampleRow = Object.fromEntries(cols.map((c) => [c.key, schema.fields.find((f) => f.key === c.key)?.example ?? ""]));
+  dataSheet.addRow(exampleRow);
 
   // Instructions sheet.
   const instr = [
     ["Field", "Requirement", "Notes"],
     ...schema.fields.map((f) => [f.label, f.required ? "Required" : "Optional", fieldHint(f)]),
   ];
-  const instrWs = XLSX.utils.aoa_to_sheet(instr);
-  instrWs["!cols"] = [{ wch: 22 }, { wch: 14 }, { wch: 60 }];
-  XLSX.utils.book_append_sheet(wb, instrWs, "Instructions");
+  const instrSheet = wb.addWorksheet("Instructions");
+  instr.forEach((r) => instrSheet.addRow(r));
+  instrSheet.columns = [{ width: 22 }, { width: 14 }, { width: 60 }];
 
-  XLSX.writeFile(wb, `${schema.id}-import-template.xlsx`);
+  const buffer = await wb.xlsx.writeBuffer();
+  download(new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${schema.id}-import-template.xlsx`);
 }
