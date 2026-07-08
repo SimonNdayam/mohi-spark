@@ -8,6 +8,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { importAndValidate, parseFile } from "@/lib/io/import";
+import { downloadSampleCsv } from "@/lib/io/export";
 import { downloadTemplateCsv, downloadTemplateXlsx } from "@/lib/io/export";
 import type { DatasetSchema, ImportResult } from "@/lib/io/schemas";
 
@@ -87,6 +88,9 @@ export function ImportDialog<T = Record<string, unknown>>({
               </Button>
               <Button size="sm" variant="outline" onClick={() => downloadTemplateXlsx(schema)}>
                 <FileSpreadsheet className="h-4 w-4 mr-1.5" /> Excel template
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => downloadSampleCsv(schema)}>
+                <FileSpreadsheet className="h-4 w-4 mr-1.5" /> Sample CSV
               </Button>
             </div>
           </div>

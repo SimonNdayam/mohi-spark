@@ -136,6 +136,32 @@ export function downloadTemplateCsv(schema: DatasetSchema) {
   );
 }
 
+export function downloadSampleCsv(schema: DatasetSchema) {
+  const cols = templateColumns(schema);
+  // Generate 5 realistic sample rows based on examples
+  const nowYear = new Date().getFullYear();
+  const samples = [
+    Object.fromEntries(cols.map((c, i) => [c.key, i === 0 ? `${schema.id.toUpperCase()}/${nowYear}/1001` : templateExampleRow(schema)[c.key]])),
+  ];
+  // create a few variants
+  for (let i = 2; i <= 5; i++) {
+    const base = templateExampleRow(schema);
+    base.admissionNo = `${schema.id.toUpperCase()}/${nowYear}/${1000 + i}`;
+    base.name = `Sample Student ${i}`;
+    base.admissionDate = `${nowYear}-01-${String(i).padStart(2, "0")}`;
+    base.gender = i % 2 === 0 ? "M" : "F";
+    base.department = base.department || "ICT";
+    base.course = base.course || "Demo Course";
+    base.phone = `+2547${Math.floor(100000000 + Math.random() * 899999999)}`;
+    samples.push(base);
+  }
+
+  const csv = Papa.unparse(samples, { columns: cols.map((c) => c.key) });
+  const labelHeader = cols.map((c) => c.label).join(",");
+  const withLabels = labelHeader + "\n" + csv.split("\n").slice(1).join("\n");
+  download(new Blob([withLabels], { type: "text/csv;charset=utf-8;" }), `${schema.id}-sample.csv`);
+}
+
 export async function downloadTemplateXlsx(schema: DatasetSchema) {
   const cols = templateColumns(schema);
   const wb = new ExcelJS.Workbook();
