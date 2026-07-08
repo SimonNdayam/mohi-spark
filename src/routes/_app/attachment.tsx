@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/ui-blocks/PageHeader";
 import { KpiCard } from "@/components/ui-blocks/KpiCard";
 import { MapPinned, CheckCircle2, Clock, Building } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useLiveData } from "@/lib/use-live-data";
+import { employmentTimeline, students, kpis } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/_app/attachment")({
   component: AttachmentPage,
@@ -14,8 +14,7 @@ export const Route = createFileRoute("/_app/attachment")({
 const chartAxis = { fontSize: 11, fill: "hsl(var(--muted-foreground))" };
 
 function AttachmentPage() {
-  const { students, kpis, employmentTimeline } = useLiveData();
-  const onAttachment = students.filter((s) => s.attachmentStatus === "Placed").slice(0, 12);
+  const onAttachment = students.filter((s) => (s.attachmentStatus === "Placed" || s.attachmentStatus === "Completed")).slice(0, 12);
 
   return (
     <div className="p-6 space-y-6 max-w-[1600px] mx-auto">

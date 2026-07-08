@@ -67,9 +67,8 @@
     "vaul": "^1.1.2",
     "vite-tsconfig-paths": "^6.0.2",
     "xlsx": "^0.18.5",
-    "zod": "^3.24.2",
-        "@supabase/supabase-js": "^2.29.0"
-      },
+    "zod": "^3.24.2"
+  },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
     "@lovable.dev/vite-tanstack-config": "2.7.0",

@@ -12,7 +12,10 @@ import { PageHeader } from "@/components/ui-blocks/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ExportMenu } from "@/components/io/ExportMenu";
-import { useLiveData } from "@/lib/use-live-data";
+import {
+  kpis, enrolmentTrend, intakeData, examPerformance,
+  employmentTimeline, discipleshipStages, departments, aiInsights, students,
+} from "@/lib/mock-data";
 
 export const Route = createFileRoute("/_app/dashboard")({
   component: DashboardPage,
