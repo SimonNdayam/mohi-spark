@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { importAndValidate } from "@/lib/io/import";
+import { importAndValidate, parseFile } from "@/lib/io/import";
 import { downloadTemplateCsv, downloadTemplateXlsx } from "@/lib/io/export";
 import type { DatasetSchema, ImportResult } from "@/lib/io/schemas";
 
@@ -25,14 +25,17 @@ export function ImportDialog<T = Record<string, unknown>>({
   const [result, setResult] = useState<ImportResult<T> | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [preview, setPreview] = useState<Record<string, unknown>[] | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const reset = () => { setResult(null); setFileName(null); if (inputRef.current) inputRef.current.value = ""; };
+  const reset = () => { setResult(null); setFileName(null); setPreview(null); if (inputRef.current) inputRef.current.value = ""; };
 
   const handleFile = async (file: File) => {
     setBusy(true);
     setFileName(file.name);
     try {
+      const raw = await parseFile(file);
+      setPreview(raw.slice(0, 20));
       const res = await importAndValidate<T>(file, schema);
       setResult(res);
       if (res.invalid.length === 0) toast.success(`All ${res.totalRows} rows are valid`);
@@ -121,6 +124,33 @@ export function ImportDialog<T = Record<string, unknown>>({
                 )}
                 <Badge variant="secondary">{result.totalRows} total</Badge>
               </div>
+
+              {/* Parsed preview for debugging */}
+              {preview && preview.length > 0 && (
+                <div className="rounded-lg border border-border p-2 overflow-auto text-xs">
+                  <div className="font-medium mb-2">Parsed preview (first {preview.length} rows)</div>
+                  <div className="overflow-auto">
+                    <table className="w-full text-xs">
+                      <thead className="bg-muted/50 sticky top-0">
+                        <tr>
+                          {Object.keys(preview[0]).map((h) => (
+                            <th key={h} className="px-2 py-1 text-left">{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {preview.map((r, ri) => (
+                          <tr key={ri} className="border-t border-border">
+                            {Object.keys(preview[0]).map((h) => (
+                              <td key={h} className="px-2 py-1">{String(r[h] ?? "")}</td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
 
               {result.invalid.length > 0 && (
                 <div className="rounded-lg border border-border max-h-56 overflow-auto">
