@@ -10,12 +10,142 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { students as seedStudents, departments, type Student } from "@/lib/mock-data";
 import { ExportMenu } from "@/components/io/ExportMenu";
 import { ImportDialog } from "@/components/io/ImportDialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { studentSchema, type ImportedStudent } from "@/lib/io/schemas";
 
 export const Route = createFileRoute("/_app/students")({
   component: StudentsPage,
   head: () => ({ meta: [{ title: "Students · MOHI TTI" }] }),
 });
+
+function AddStudentDialog({ trigger, onAdd }: { trigger?: React.ReactNode; onAdd: (s: Student) => void }) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [admissionNo, setAdmissionNo] = useState("");
+  const [admissionDate, setAdmissionDate] = useState<string>(new Date().toISOString().slice(0, 10));
+  const [contact, setContact] = useState("");
+  const [departmentVal, setDepartmentVal] = useState(departments[0]?.name ?? "");
+  const [course, setCourse] = useState("");
+  const [statusVal, setStatusVal] = useState<"Continuing" | "Completed" | "Deferred" | "Dropped">("Continuing");
+  const [discipleship, setDiscipleship] = useState<"Wanderer" | "Seeker" | "Accepted Christ" | "Follower" | "Guide">("Seeker");
+  const [attachmentStatus, setAttachmentStatus] = useState<"Placed" | "Awaiting" | "Completed" | "N/A">("Awaiting");
+  const [attachmentLocation, setAttachmentLocation] = useState("");
+  const [employmentStatus, setEmploymentStatus] = useState<"Employed" | "Awaiting" | "N/A">("Awaiting");
+  const [placementLocation, setPlacementLocation] = useState("");
+  const [gpa, setGpa] = useState<number>(0);
+
+  const reset = () => {
+    setName(""); setAdmissionNo(""); setAdmissionDate(new Date().toISOString().slice(0, 10)); setContact("");
+    setDepartmentVal(departments[0]?.name ?? ""); setCourse(""); setStatusVal("Continuing"); setDiscipleship("Seeker");
+    setAttachmentStatus("Awaiting"); setAttachmentLocation(""); setEmploymentStatus("Awaiting"); setPlacementLocation(""); setGpa(0);
+  };
+
+  const commit = () => {
+    if (!name || !admissionNo || !departmentVal || !course) return;
+    const newStudent: Student = {
+      id: `s${Date.now()}`,
+      admissionNo,
+      admissionDate,
+      name,
+      gender: "M",
+      department: departmentVal,
+      course,
+      intake: "",
+      status: statusVal,
+      phone: contact,
+      contact,
+      county: "",
+      discipleship,
+      attachmentStatus,
+      attachmentLocation: attachmentLocation || undefined,
+      employmentStatus,
+      placementLocation: placementLocation || undefined,
+      gpa: Number(gpa || 0),
+    };
+
+    onAdd(newStudent);
+    setOpen(false);
+    reset();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) reset(); }}>
+      <DialogTrigger asChild>
+        {trigger ?? (
+          <Button size="sm" className="gradient-primary text-primary-foreground border-0">
+            <UserPlus className="h-4 w-4 mr-1.5" /> New Student
+          </Button>
+        )}
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Add New Student</DialogTitle>
+          <DialogDescription>Fill required fields and click Add to create a new student record.</DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" />
+            <Input value={admissionNo} onChange={(e) => setAdmissionNo(e.target.value)} placeholder="Admission No" />
+            <Input type="date" value={admissionDate} onChange={(e) => setAdmissionDate(e.target.value)} />
+            <Input value={contact} onChange={(e) => setContact(e.target.value)} placeholder="Contact (phone)" />
+            <Select value={departmentVal} onValueChange={(v) => { setDepartmentVal(v); const dept = departments.find(d => d.name === v); if (dept) setCourse(dept.courses?.[0] ?? ""); }}>
+              <SelectTrigger className="w-full"><SelectValue placeholder="Department" /></SelectTrigger>
+              <SelectContent>
+                {departments.map((d) => <SelectItem key={d.id} value={d.name}>{d.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Input value={course} onChange={(e) => setCourse(e.target.value)} placeholder="Course" />
+            <Select value={statusVal} onValueChange={(v) => setStatusVal(v as any)}>
+              <SelectTrigger className="w-full"><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Continuing">Continuing</SelectItem>
+                <SelectItem value="Completed">Completed</SelectItem>
+                <SelectItem value="Deferred">Deferred</SelectItem>
+                <SelectItem value="Dropped">Dropped</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={discipleship} onValueChange={(v) => setDiscipleship(v as any)}>
+              <SelectTrigger className="w-full"><SelectValue placeholder="Discipleship" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Wanderer">Wanderer</SelectItem>
+                <SelectItem value="Seeker">Seeker</SelectItem>
+                <SelectItem value="Accepted Christ">Accepted Christ</SelectItem>
+                <SelectItem value="Follower">Follower</SelectItem>
+                <SelectItem value="Guide">Guide</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={attachmentStatus} onValueChange={(v) => setAttachmentStatus(v as any)}>
+              <SelectTrigger className="w-full"><SelectValue placeholder="Attachment Status" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Placed">Placed</SelectItem>
+                <SelectItem value="Awaiting">Awaiting</SelectItem>
+                <SelectItem value="Completed">Completed</SelectItem>
+                <SelectItem value="N/A">N/A</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input value={attachmentLocation} onChange={(e) => setAttachmentLocation(e.target.value)} placeholder="Attachment Location (optional)" />
+            <Select value={employmentStatus} onValueChange={(v) => setEmploymentStatus(v as any)}>
+              <SelectTrigger className="w-full"><SelectValue placeholder="Employment Status" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Employed">Employed</SelectItem>
+                <SelectItem value="Awaiting">Awaiting</SelectItem>
+                <SelectItem value="N/A">N/A</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input value={placementLocation} onChange={(e) => setPlacementLocation(e.target.value)} placeholder="Placement Location (optional)" />
+            <Input type="number" step="0.01" value={String(gpa)} onChange={(e) => setGpa(Number(e.target.value))} placeholder="GPA" />
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button onClick={commit} className="gradient-primary text-primary-foreground border-0">Add student</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 function StudentsPage() {
   const [q, setQ] = useState("");
@@ -73,9 +203,10 @@ function StudentsPage() {
           title="Students Register"
           subtitle={`Filtered view · ${filtered.length} of ${students.length} students`}
         />
-        <Button size="sm" className="gradient-primary text-primary-foreground border-0">
-          <UserPlus className="h-4 w-4 mr-1.5" /> New Student
-        </Button>
+        <AddStudentDialog
+          trigger={<Button size="sm" className="gradient-primary text-primary-foreground border-0"><UserPlus className="h-4 w-4 mr-1.5" /> New Student</Button>}
+          onAdd={(s) => setStudents((prev) => [s, ...prev])}
+        />
       </PageHeader>
 
       <div className="glass-card rounded-xl p-4 space-y-4">
