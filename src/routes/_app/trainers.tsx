@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/ui-blocks/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Star, Users } from "lucide-react";
 import { trainers } from "@/lib/mock-data";
+import { useLiveData } from "@/lib/use-live-data";
 
 export const Route = createFileRoute("/_app/trainers")({
   component: TrainersPage,
@@ -10,9 +11,10 @@ export const Route = createFileRoute("/_app/trainers")({
 });
 
 function TrainersPage() {
+  const { kpis } = useLiveData();
   return (
     <div className="p-6 space-y-6 max-w-[1600px] mx-auto">
-      <PageHeader title="Trainers" description="Faculty overseeing student attendance, assessments, attachment visits and discipleship." />
+      <PageHeader title="Trainers" description={`Faculty overseeing student attendance, assessments, attachment visits and discipleship · ${kpis.totalStudents} students`} />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {trainers.map((t) => (
           <div key={t.name} className="glass-card rounded-xl p-5">
