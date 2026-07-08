@@ -12,10 +12,7 @@ import { PageHeader } from "@/components/ui-blocks/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ExportMenu } from "@/components/io/ExportMenu";
-import {
-  kpis, enrolmentTrend, intakeData, examPerformance,
-  employmentTimeline, discipleshipStages, departments, aiInsights, students,
-} from "@/lib/mock-data";
+import { useLiveData } from "@/lib/use-live-data";
 
 export const Route = createFileRoute("/_app/dashboard")({
   component: DashboardPage,
@@ -27,8 +24,10 @@ export const Route = createFileRoute("/_app/dashboard")({
 const chartAxis = { fontSize: 11, fill: "hsl(var(--muted-foreground))" };
 
 function DashboardPage() {
-  // Use mock-data when live backend is not configured
-  const loading = false; // placeholder for UI compatibility
+  const {
+    students, loading, kpis, enrolmentTrend, intakeData, examPerformance,
+    employmentTimeline, discipleshipStages, departments, aiInsights,
+  } = useLiveData();
 
   const genderPie = [
     { name: "Male", value: kpis.male ?? 0, color: "var(--color-chart-1)" },
