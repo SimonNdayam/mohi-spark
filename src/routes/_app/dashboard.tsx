@@ -12,10 +12,7 @@ import { PageHeader } from "@/components/ui-blocks/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ExportMenu } from "@/components/io/ExportMenu";
-import {
-  kpis, enrolmentTrend, intakeData, examPerformance,
-  employmentTimeline, discipleshipStages, departments, aiInsights, students,
-} from "@/lib/mock-data";
+import { useLiveData } from "@/lib/use-live-data";
 
 export const Route = createFileRoute("/_app/dashboard")({
   component: DashboardPage,
@@ -27,16 +24,21 @@ export const Route = createFileRoute("/_app/dashboard")({
 const chartAxis = { fontSize: 11, fill: "hsl(var(--muted-foreground))" };
 
 function DashboardPage() {
+  const {
+    students, loading, kpis, enrolmentTrend, intakeData, examPerformance,
+    employmentTimeline, discipleshipStages, departments, aiInsights,
+  } = useLiveData();
+
   const genderPie = [
-    { name: "Male", value: kpis.male, color: "var(--color-chart-1)" },
-    { name: "Female", value: kpis.female, color: "var(--color-chart-2)" },
+    { name: "Male", value: kpis.male ?? 0, color: "var(--color-chart-1)" },
+    { name: "Female", value: kpis.female ?? 0, color: "var(--color-chart-2)" },
   ];
 
   return (
-    <div className="p-6 space-y-6 max-w-[1600px] mx-auto">
+    <div className="p-6 space-y-6 max-w-[1600px] mx-auto"> 
       <PageHeader
         title="Institutional Overview"
-        description="Live snapshot of enrolment, academic performance, attachment, placement and discipleship — Academic Year 2025."
+        description="Live snapshot of enrolment, academic performance, attachment, placement and discipleship — Live data from Supabase."
       >
         <ExportMenu
           filenameBase="dashboard-kpis"

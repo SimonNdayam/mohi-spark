@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/ui-blocks/PageHeader";
 import { KpiCard } from "@/components/ui-blocks/KpiCard";
 import { Briefcase, TrendingUp, Building2, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { employers, employmentTimeline, kpis, departments } from "@/lib/mock-data";
+import { useLiveData } from "@/lib/use-live-data";
 
 export const Route = createFileRoute("/_app/placement")({
   component: PlacementPage,
@@ -14,10 +14,20 @@ export const Route = createFileRoute("/_app/placement")({
 const chartAxis = { fontSize: 11, fill: "hsl(var(--muted-foreground))" };
 
 function PlacementPage() {
-  const byDept = departments.slice(0, 6).map((d) => ({
-    dept: d.name.split(" ")[0],
-    rate: Math.round(45 + Math.random() * 35),
-  }));
+  const { employmentTimeline, kpis, students, departments } = useLiveData();
+
+  const byDept = departments.slice(0, 6).map((d) => ({ dept: d.name.split(" ")[0], rate: Math.round((d.students === 0 ? 0 : (d.students * 0.6))) }));
+
+  const employers = ((): { name: string; industry?: string; placed: number; county?: string }[] => {
+    const map: Record<string, { name: string; placed: number }> = {};
+    for (const s of students) {
+      if (!s.placementLocation) continue;
+      const key = s.placementLocation;
+      if (!map[key]) map[key] = { name: key, placed: 0 };
+      map[key].placed += 1;
+    }
+    return Object.values(map).sort((a, b) => b.placed - a.placed).slice(0, 8);
+  })();
 
   return (
     <div className="p-6 space-y-6 max-w-[1600px] mx-auto">

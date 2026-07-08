@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Search, Filter, UserPlus, Upload } from "lucide-react";
 import { PageHeader } from "@/components/ui-blocks/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -7,11 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { students as seedStudents, departments, type Student } from "@/lib/mock-data";
+import { departments, type Student } from "@/lib/mock-data";
 import { ExportMenu } from "@/components/io/ExportMenu";
 import { ImportDialog } from "@/components/io/ImportDialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { studentSchema, type ImportedStudent } from "@/lib/io/schemas";
+import { useLiveData } from "@/lib/use-live-data";
 
 export const Route = createFileRoute("/_app/students")({
   component: StudentsPage,
@@ -151,7 +152,7 @@ function StudentsPage() {
   const [q, setQ] = useState("");
   const [dept, setDept] = useState("all");
   const [status, setStatus] = useState("all");
-  const [students, setStudents] = useState<Student[]>(seedStudents);
+  const { students, addStudent, addStudentsBulk } = useLiveData();
 
   const filtered = useMemo(() => students.filter((s) => {
     if (dept !== "all" && s.department !== dept) return false;
@@ -179,10 +180,13 @@ function StudentsPage() {
     { key: "gpa", label: "GPA" },
   ];
 
-  const handleImport = (rows: ImportedStudent[]) => {
-    const startId = students.length + 1;
-    const withIds: Student[] = rows.map((r, i) => ({ ...(r as ImportedStudent), id: `s${startId + i}` }));
-    setStudents((prev) => [...withIds, ...prev]);
+  const handleImport = async (rows: ImportedStudent[]) => {
+    const toInsert = rows.map((r) => ({ ...(r as ImportedStudent) }));
+    try {
+      await addStudentsBulk(toInsert as any);
+    } catch (e) {
+      console.warn("Import failed", e);
+    }
   };
 
   return (
@@ -205,7 +209,7 @@ function StudentsPage() {
         />
         <AddStudentDialog
           trigger={<Button size="sm" className="gradient-primary text-primary-foreground border-0"><UserPlus className="h-4 w-4 mr-1.5" /> New Student</Button>}
-          onAdd={(s) => setStudents((prev) => [s, ...prev])}
+          onAdd={async (s) => { try { await addStudent(s as any); } catch (e) { console.warn(e); } }}
         />
       </PageHeader>
 

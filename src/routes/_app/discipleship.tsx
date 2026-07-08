@@ -3,7 +3,7 @@ import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContaine
 import { PageHeader } from "@/components/ui-blocks/PageHeader";
 import { KpiCard } from "@/components/ui-blocks/KpiCard";
 import { HeartHandshake, Users, TrendingUp, AlertCircle } from "lucide-react";
-import { discipleshipStages, kpis, departments } from "@/lib/mock-data";
+import { useLiveData } from "@/lib/use-live-data";
 
 export const Route = createFileRoute("/_app/discipleship")({
   component: DiscipleshipPage,
@@ -13,18 +13,11 @@ export const Route = createFileRoute("/_app/discipleship")({
 const chartAxis = { fontSize: 11, fill: "hsl(var(--muted-foreground))" };
 
 function DiscipleshipPage() {
-  const growthOverTime = [
-    { term: "T1 24", growing: 280, disc: 120, wandering: 220, lost: 180 },
-    { term: "T2 24", growing: 320, disc: 148, wandering: 202, lost: 158 },
-    { term: "T3 24", growing: 368, disc: 172, wandering: 189, lost: 132 },
-    { term: "T1 25", growing: 402, disc: 195, wandering: 178, lost: 118 },
-    { term: "T2 25", growing: 428, disc: 214, wandering: 172, lost: 98 },
-  ];
-  const byDept = departments.slice(0, 6).map((d) => ({
-    dept: d.name.split(" ")[0],
-    growing: Math.round(30 + Math.random() * 40),
-    discipling: Math.round(10 + Math.random() * 25),
-  }));
+  const { kpis, discipleshipStages, departments } = useLiveData();
+
+  const growthOverTime = [] as { term: string; growing: number; disc: number; wandering: number; lost: number }[];
+  // not enough historical data in students table — keep placeholder
+  const byDept = departments.slice(0, 6).map((d) => ({ dept: d.name.split(" ")[0], growing: Math.round(d.students * 0.4), discipling: Math.round(d.students * 0.2) }));
 
   return (
     <div className="p-6 space-y-6 max-w-[1600px] mx-auto">
