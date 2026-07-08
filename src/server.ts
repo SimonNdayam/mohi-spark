@@ -44,9 +44,15 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
+import { handleApi } from "./server-api";
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      // Check API routes first
+      const apiResp = await handleApi(request);
+      if (apiResp) return apiResp;
+
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
