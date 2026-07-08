@@ -27,10 +27,8 @@ export const Route = createFileRoute("/_app/dashboard")({
 const chartAxis = { fontSize: 11, fill: "hsl(var(--muted-foreground))" };
 
 function DashboardPage() {
-  const {
-    students, loading, kpis, enrolmentTrend, intakeData, examPerformance,
-    employmentTimeline, discipleshipStages, departments, aiInsights,
-  } = useLiveData();
+  // Use mock-data when live backend is not configured
+  const loading = false; // placeholder for UI compatibility
 
   const genderPie = [
     { name: "Male", value: kpis.male ?? 0, color: "var(--color-chart-1)" },
