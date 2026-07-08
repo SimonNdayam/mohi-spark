@@ -1,13 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Search, Filter, Download, UserPlus } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Search, Filter, UserPlus, Upload } from "lucide-react";
 import { PageHeader } from "@/components/ui-blocks/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { students, departments } from "@/lib/mock-data";
+import { students as seedStudents, departments, type Student } from "@/lib/mock-data";
+import { ExportMenu } from "@/components/io/ExportMenu";
+import { ImportDialog } from "@/components/io/ImportDialog";
+import { studentSchema, type ImportedStudent } from "@/lib/io/schemas";
 
 export const Route = createFileRoute("/_app/students")({
   component: StudentsPage,
@@ -18,19 +21,55 @@ function StudentsPage() {
   const [q, setQ] = useState("");
   const [dept, setDept] = useState("all");
   const [status, setStatus] = useState("all");
+  const [students, setStudents] = useState<Student[]>(seedStudents);
 
-  const filtered = students.filter((s) => {
+  const filtered = useMemo(() => students.filter((s) => {
     if (dept !== "all" && s.department !== dept) return false;
     if (status !== "all" && s.status !== status) return false;
     if (q && !`${s.name} ${s.admissionNo} ${s.course}`.toLowerCase().includes(q.toLowerCase())) return false;
     return true;
-  });
+  }), [students, dept, status, q]);
+
+  const exportColumns = [
+    { key: "admissionNo", label: "Admission No" },
+    { key: "name", label: "Name" },
+    { key: "gender", label: "Gender" },
+    { key: "department", label: "Department" },
+    { key: "course", label: "Course" },
+    { key: "intake", label: "Intake" },
+    { key: "county", label: "County" },
+    { key: "phone", label: "Phone" },
+    { key: "status", label: "Status" },
+    { key: "gpa", label: "GPA" },
+  ];
+
+  const handleImport = (rows: ImportedStudent[]) => {
+    const startId = students.length + 1;
+    const withIds: Student[] = rows.map((r, i) => ({ ...(r as ImportedStudent), id: `s${startId + i}` }));
+    setStudents((prev) => [...withIds, ...prev]);
+  };
 
   return (
     <div className="p-6 space-y-4 max-w-[1600px] mx-auto">
-      <PageHeader title="Students" description={`${students.length} total · ${students.filter(s => s.status === "Active").length} active`}>
-        <Button variant="outline" size="sm"><Download className="h-4 w-4 mr-1.5" /> Export</Button>
-        <Button size="sm" className="gradient-primary text-primary-foreground border-0"><UserPlus className="h-4 w-4 mr-1.5" /> New Student</Button>
+      <PageHeader
+        title="Students"
+        description={`${students.length} total · ${students.filter((s) => s.status === "Active").length} active · showing ${filtered.length}`}
+      >
+        <ImportDialog<ImportedStudent>
+          schema={studentSchema}
+          onImport={handleImport}
+          trigger={<Button variant="outline" size="sm"><Upload className="h-4 w-4 mr-1.5" /> Import</Button>}
+        />
+        <ExportMenu
+          filenameBase="students"
+          columns={exportColumns}
+          data={filtered as unknown as Record<string, unknown>[]}
+          title="Students Register"
+          subtitle={`Filtered view · ${filtered.length} of ${students.length} students`}
+        />
+        <Button size="sm" className="gradient-primary text-primary-foreground border-0">
+          <UserPlus className="h-4 w-4 mr-1.5" /> New Student
+        </Button>
       </PageHeader>
 
       <div className="glass-card rounded-xl p-4 space-y-4">
