@@ -11,6 +11,7 @@ import { KpiCard } from "@/components/ui-blocks/KpiCard";
 import { PageHeader } from "@/components/ui-blocks/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ExportMenu } from "@/components/io/ExportMenu";
 import {
   kpis, enrolmentTrend, intakeData, examPerformance,
   employmentTimeline, discipleshipStages, departments, aiInsights, students,
