@@ -26,19 +26,25 @@ function StudentsPage() {
   const filtered = useMemo(() => students.filter((s) => {
     if (dept !== "all" && s.department !== dept) return false;
     if (status !== "all" && s.status !== status) return false;
-    if (q && !`${s.name} ${s.admissionNo} ${s.course}`.toLowerCase().includes(q.toLowerCase())) return false;
+    if (q && !`${s.name} ${s.admissionNo} ${s.course} ${s.admissionDate ?? ""} ${s.phone ?? ""} ${s.discipleship ?? ""}`.toLowerCase().includes(q.toLowerCase())) return false;
     return true;
   }), [students, dept, status, q]);
 
   const exportColumns = [
     { key: "admissionNo", label: "Admission No" },
     { key: "name", label: "Name" },
+    { key: "admissionDate", label: "Admission Date" },
+    { key: "contact", label: "Contact" },
     { key: "gender", label: "Gender" },
     { key: "department", label: "Department" },
     { key: "course", label: "Course" },
     { key: "intake", label: "Intake" },
     { key: "county", label: "County" },
-    { key: "phone", label: "Phone" },
+    { key: "discipleship", label: "Discipleship" },
+    { key: "attachmentStatus", label: "Attachment" },
+    { key: "attachmentLocation", label: "Attachment Location" },
+    { key: "employmentStatus", label: "Employment" },
+    { key: "placementLocation", label: "Placement Location" },
     { key: "status", label: "Status" },
     { key: "gpa", label: "GPA" },
   ];
@@ -53,7 +59,7 @@ function StudentsPage() {
     <div className="p-6 space-y-4 max-w-[1600px] mx-auto">
       <PageHeader
         title="Students"
-        description={`${students.length} total · ${students.filter((s) => s.status === "Active").length} active · showing ${filtered.length}`}
+        description={`${students.length} total · ${students.filter((s) => s.status === "Continuing").length} continuing · showing ${filtered.length}`}
       >
         <ImportDialog<ImportedStudent>
           schema={studentSchema}
@@ -89,7 +95,7 @@ function StudentsPage() {
             <SelectTrigger className="w-[150px]"><SelectValue placeholder="Status" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All statuses</SelectItem>
-              <SelectItem value="Active">Active</SelectItem>
+              <SelectItem value="Continuing">Continuing</SelectItem>
               <SelectItem value="Completed">Completed</SelectItem>
               <SelectItem value="Deferred">Deferred</SelectItem>
               <SelectItem value="Dropped">Dropped</SelectItem>
@@ -98,16 +104,28 @@ function StudentsPage() {
           <Button variant="outline" size="icon"><Filter className="h-4 w-4" /></Button>
         </div>
 
+        <div className="flex flex-wrap gap-2 items-center">
+          {departments.map((d) => (
+            <Button key={d.id} variant={dept === d.name ? 'default' : 'outline'} size="sm" onClick={() => setDept(d.name)}>
+              {d.name}
+            </Button>
+          ))}
+          <Button variant="ghost" size="sm" onClick={() => setDept('all')}>All departments</Button>
+        </div>
+
         <div className="rounded-lg border border-border overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/40 hover:bg-muted/40">
                 <TableHead>Student</TableHead>
                 <TableHead>Admission No</TableHead>
+                <TableHead>Admission Date</TableHead>
+                <TableHead>Contact</TableHead>
                 <TableHead>Department</TableHead>
                 <TableHead>Course</TableHead>
-                <TableHead>Intake</TableHead>
-                <TableHead>County</TableHead>
+                <TableHead>Discipleship</TableHead>
+                <TableHead>Attachment</TableHead>
+                <TableHead>Placement</TableHead>
                 <TableHead className="text-right">GPA</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
@@ -127,14 +145,17 @@ function StudentsPage() {
                     </div>
                   </TableCell>
                   <TableCell className="font-mono text-xs">{s.admissionNo}</TableCell>
+                  <TableCell className="text-sm">{s.admissionDate}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{s.contact}</TableCell>
                   <TableCell className="text-sm">{s.department}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{s.course}</TableCell>
-                  <TableCell className="text-sm">{s.intake}</TableCell>
-                  <TableCell className="text-sm">{s.county}</TableCell>
+                  <TableCell className="text-sm">{s.discipleship}</TableCell>
+                  <TableCell className="text-sm">{s.attachmentStatus}{s.attachmentLocation ? ` · ${s.attachmentLocation}` : ''}</TableCell>
+                  <TableCell className="text-sm">{s.employmentStatus}{s.placementLocation ? ` · ${s.placementLocation}` : ''}</TableCell>
                   <TableCell className="text-right tabular-nums text-sm">{s.gpa.toFixed(2)}</TableCell>
                   <TableCell>
-                    <Badge variant={s.status === "Active" ? "default" : "secondary"}
-                      className={s.status === "Active" ? "bg-success/10 text-success hover:bg-success/10 border-success/20" : ""}>
+                    <Badge variant={s.status === "Continuing" ? "default" : "secondary"}
+                      className={s.status === "Continuing" ? "bg-success/10 text-success hover:bg-success/10 border-success/20" : ""}>
                       {s.status}
                     </Badge>
                   </TableCell>

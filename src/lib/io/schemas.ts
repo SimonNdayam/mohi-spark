@@ -25,6 +25,7 @@ export const studentSchema: DatasetSchema = {
   name: "Students",
   fields: [
     { key: "admissionNo", label: "Admission No", kind: "string", required: true, example: "MOHI/2025/1001" },
+    { key: "admissionDate", label: "Admission Date", kind: "string", required: false, example: "2024-09-01" },
     { key: "name", label: "Full Name", kind: "string", required: true, example: "Jane Wanjiku" },
     { key: "gender", label: "Gender", kind: "enum", required: true, enumValues: ["M", "F"], example: "F" },
     { key: "department", label: "Department", kind: "string", required: true, example: "ICT" },
@@ -32,19 +33,22 @@ export const studentSchema: DatasetSchema = {
     { key: "intake", label: "Intake", kind: "string", required: true, example: "Sep 2025" },
     {
       key: "status", label: "Status", kind: "enum", required: true,
-      enumValues: ["Active", "Completed", "Deferred", "Dropped"], example: "Active",
+      enumValues: ["Continuing", "Completed", "Deferred", "Dropped"], example: "Continuing",
     },
     { key: "phone", label: "Phone", kind: "phone", required: true, example: "+254712345678" },
+    { key: "contact", label: "Contact", kind: "phone", required: false, example: "+254712345678" },
     { key: "county", label: "County", kind: "string", required: true, example: "Nairobi" },
-    { key: "discipleship", label: "Discipleship Stage", kind: "string", example: "Growing" },
+    { key: "discipleship", label: "Discipleship Stage", kind: "enum", example: "Seeker", enumValues: ["Wanderer", "Seeker", "Accepted Christ", "Follower", "Guide"] },
     {
-      key: "attachment", label: "Attachment", kind: "enum",
+      key: "attachmentStatus", label: "Attachment", kind: "enum",
       enumValues: ["Placed", "Awaiting", "Completed", "N/A"], example: "Awaiting",
     },
+    { key: "attachmentLocation", label: "Attachment Location", kind: "string", required: false, example: "Acme Ltd" },
     {
-      key: "employment", label: "Employment", kind: "enum",
+      key: "employmentStatus", label: "Employment", kind: "enum",
       enumValues: ["Employed", "Awaiting", "N/A"], example: "Awaiting",
     },
+    { key: "placementLocation", label: "Placement Location", kind: "string", required: false, example: "Acme Ltd" },
     { key: "gpa", label: "GPA", kind: "number", min: 0, max: 4, example: 3.2 },
   ],
 };
