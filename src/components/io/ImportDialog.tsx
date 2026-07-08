@@ -45,7 +45,9 @@ export function ImportDialog<T = Record<string, unknown>>({
       toast.error("Could not read file", { description: e instanceof Error ? e.message : String(e) });
       reset();
     } finally {
+      // allow re-selecting the same file by clearing the file input's value
       setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
     }
   };
 
@@ -101,6 +103,7 @@ export function ImportDialog<T = Record<string, unknown>>({
               type="file"
               accept=".csv,.xlsx,.xls"
               className="block w-full text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+              onClick={() => { if (inputRef.current) inputRef.current.value = ""; }}
               onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
             />
             {fileName && (
