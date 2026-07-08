@@ -15,15 +15,41 @@ async function readCsv(file: File): Promise<Record<string, unknown>[]> {
   });
 
   // Fallback: some CSVs produced by Excel or other tools may require explicit newline or delimiter
-  if ((parsed.data?.length ?? 0) <= 1 && cleanText.includes("\n")) {
-    const parsed2 = Papa.parse<Record<string, unknown>>(cleanText, {
-      header: true,
-      skipEmptyLines: true,
-      transformHeader: (h) => String(h ?? "").replace(/^\uFEFF/, "").trim(),
-      newline: "\n",
-      delimiter: ",",
-    });
-    if ((parsed2.data?.length ?? 0) > 1) return parsed2.data;
+  if ((parsed.data?.length ?? 0) <= 1) {
+    // Try common newline variants
+    const newlineCandidates = ["\r\n", "\n", "\r"];
+    for (const nl of newlineCandidates) {
+      if (!cleanText.includes(nl)) continue;
+      // Try common delimiters
+      const delimiters = [",", ";", "\t", "|"];
+      for (const delim of delimiters) {
+        try {
+          const parsed2 = Papa.parse<Record<string, unknown>>(cleanText, {
+            header: true,
+            skipEmptyLines: true,
+            transformHeader: (h) => String(h ?? "").replace(/^\uFEFF/, "").trim(),
+            newline: nl,
+            delimiter: delim,
+          });
+          if ((parsed2.data?.length ?? 0) > 1) return parsed2.data;
+        } catch (e) {
+          // ignore and try next
+        }
+      }
+    }
+
+    // As a last resort: try splitting lines and re-parse only header+first 1000 lines
+    const lines = cleanText.split(/\r?\n/).filter(Boolean);
+    if (lines.length > 1) {
+      const header = lines[0];
+      const sample = lines.slice(0, 1000).join("\n");
+      const parsed3 = Papa.parse<Record<string, unknown>>(sample, {
+        header: true,
+        skipEmptyLines: true,
+        transformHeader: (h) => String(h ?? "").replace(/^\uFEFF/, "").trim(),
+      });
+      if ((parsed3.data?.length ?? 0) > 0) return parsed3.data;
+    }
   }
 
   return parsed.data;
