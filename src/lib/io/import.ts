@@ -5,11 +5,27 @@ import { validateRow, type DatasetSchema, type ImportResult } from "./schemas";
 
 async function readCsv(file: File): Promise<Record<string, unknown>[]> {
   const text = await file.text();
-  const parsed = Papa.parse<Record<string, unknown>>(text, {
+  // Trim BOM from start if present
+  const cleanText = text.replace(/^\uFEFF/, "");
+
+  const parsed = Papa.parse<Record<string, unknown>>(cleanText, {
     header: true,
     skipEmptyLines: true,
-    transformHeader: (h) => h.trim(),
+    transformHeader: (h) => String(h ?? "").replace(/^\uFEFF/, "").trim(),
   });
+
+  // Fallback: some CSVs produced by Excel or other tools may require explicit newline or delimiter
+  if ((parsed.data?.length ?? 0) <= 1 && cleanText.includes("\n")) {
+    const parsed2 = Papa.parse<Record<string, unknown>>(cleanText, {
+      header: true,
+      skipEmptyLines: true,
+      transformHeader: (h) => String(h ?? "").replace(/^\uFEFF/, "").trim(),
+      newline: "\n",
+      delimiter: ",",
+    });
+    if ((parsed2.data?.length ?? 0) > 1) return parsed2.data;
+  }
+
   return parsed.data;
 }
 
