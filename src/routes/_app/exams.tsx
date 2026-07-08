@@ -5,7 +5,7 @@ import { KpiCard } from "@/components/ui-blocks/KpiCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Award, GraduationCap, TrendingUp, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { examPerformance, kpis } from "@/lib/mock-data";
+import { useLiveData } from "@/lib/use-live-data";
 
 export const Route = createFileRoute("/_app/exams")({
   component: ExamsPage,
@@ -15,6 +15,8 @@ export const Route = createFileRoute("/_app/exams")({
 const chartAxis = { fontSize: 11, fill: "hsl(var(--muted-foreground))" };
 
 function ExamsPage() {
+  const { examPerformance, kpis } = useLiveData();
+
   const nita = [
     { grade: "Grade I", count: 128 }, { grade: "Grade II", count: 96 },
     { grade: "Grade III", count: 74 }, { grade: "Fail", count: 30 },

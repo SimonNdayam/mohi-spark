@@ -112,17 +112,21 @@ export const genderByDept = departments.slice(0, 6).map((d) => ({
 export type Student = {
   id: string;
   admissionNo: string;
+  admissionDate: string;
   name: string;
   gender: "M" | "F";
   department: string;
   course: string;
   intake: string;
-  status: "Active" | "Completed" | "Deferred" | "Dropped";
+  status: "Continuing" | "Completed" | "Deferred" | "Dropped";
   phone: string;
+  contact: string;
   county: string;
-  discipleship: string;
-  attachment: "Placed" | "Awaiting" | "Completed" | "N/A";
-  employment: "Employed" | "Awaiting" | "N/A";
+  discipleship: "Wanderer" | "Seeker" | "Accepted Christ" | "Follower" | "Guide" | "Unknown";
+  attachmentStatus: "Placed" | "Awaiting" | "Completed" | "N/A";
+  attachmentLocation?: string;
+  employmentStatus: "Employed" | "Awaiting" | "N/A";
+  placementLocation?: string;
   gpa: number;
 };
 
@@ -130,27 +134,38 @@ const firstNames = ["Brian", "Faith", "Kevin", "Mercy", "Dennis", "Sharon", "Pet
 const lastNames = ["Kariuki", "Otieno", "Mwangi", "Wanjiru", "Kimani", "Ochieng", "Njoroge", "Kiplagat", "Wafula", "Muthoni", "Barasa", "Cheruiyot", "Mukami", "Nyambura", "Kiplimo"];
 const counties = ["Nairobi", "Kiambu", "Nakuru", "Uasin Gishu", "Kisumu", "Machakos", "Meru", "Bungoma", "Kakamega", "Nyeri"];
 const intakes = ["Jan 2025", "May 2025", "Sep 2024", "May 2024", "Jan 2024"];
-const discStages = ["Growing", "Discipling Others", "Accepted Christ", "Wandering", "Don't Know"];
+const discStages = ["Wanderer", "Seeker", "Accepted Christ", "Follower", "Guide"];
 
 export const students: Student[] = Array.from({ length: 60 }).map((_, i) => {
   const dept = departments[i % departments.length];
   const gender: "M" | "F" = i % 2 === 0 ? "M" : "F";
   const first = firstNames[i % firstNames.length];
   const last = lastNames[(i * 3) % lastNames.length];
+  const phone = `+2547${(10000000 + i * 12345).toString().slice(0, 8)}`;
+  const admissionDate = new Date(2022 + (i % 4), (i % 12), (1 + (i % 27))).toISOString().slice(0, 10);
+  const attachmentStatus = (["Placed", "Awaiting", "Completed", "N/A"] as const)[i % 4];
+  const employmentStatus = (["Employed", "Awaiting", "N/A", "N/A"] as const)[i % 4];
+  const attachmentLocation = attachmentStatus === "Placed" ? `Company ${(i % 12) + 1}` : undefined;
+  const placementLocation = employmentStatus === "Employed" ? `Employer ${(i % 10) + 1}` : undefined;
+
   return {
     id: `s${i + 1}`,
     admissionNo: `MOHI/${2024 - (i % 3)}/${(1000 + i).toString()}`,
+    admissionDate,
     name: `${first} ${last}`,
     gender,
     department: dept.name,
     course: dept.courses[i % dept.courses.length],
     intake: intakes[i % intakes.length],
-    status: (["Active", "Active", "Active", "Completed", "Deferred"] as const)[i % 5],
-    phone: `+2547${(10000000 + i * 12345).toString().slice(0, 8)}`,
+    status: (["Continuing", "Continuing", "Continuing", "Completed", "Deferred"] as const)[i % 5],
+    phone,
+    contact: phone,
     county: counties[i % counties.length],
     discipleship: discStages[i % discStages.length],
-    attachment: (["Placed", "Awaiting", "Completed", "N/A"] as const)[i % 4],
-    employment: (["Employed", "Awaiting", "N/A", "N/A"] as const)[i % 4],
+    attachmentStatus,
+    attachmentLocation,
+    employmentStatus,
+    placementLocation,
     gpa: Number((2.4 + Math.random() * 1.6).toFixed(2)),
   };
 });

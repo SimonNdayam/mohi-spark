@@ -7,7 +7,8 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { importAndValidate } from "@/lib/io/import";
+import { importAndValidate, parseFile } from "@/lib/io/import";
+import { downloadSampleCsv } from "@/lib/io/export";
 import { downloadTemplateCsv, downloadTemplateXlsx } from "@/lib/io/export";
 import type { DatasetSchema, ImportResult } from "@/lib/io/schemas";
 
@@ -25,14 +26,17 @@ export function ImportDialog<T = Record<string, unknown>>({
   const [result, setResult] = useState<ImportResult<T> | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [preview, setPreview] = useState<Record<string, unknown>[] | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const reset = () => { setResult(null); setFileName(null); if (inputRef.current) inputRef.current.value = ""; };
+  const reset = () => { setResult(null); setFileName(null); setPreview(null); if (inputRef.current) inputRef.current.value = ""; };
 
   const handleFile = async (file: File) => {
     setBusy(true);
     setFileName(file.name);
     try {
+      const raw = await parseFile(file);
+      setPreview(raw.slice(0, 20));
       const res = await importAndValidate<T>(file, schema);
       setResult(res);
       if (res.invalid.length === 0) toast.success(`All ${res.totalRows} rows are valid`);
@@ -41,7 +45,9 @@ export function ImportDialog<T = Record<string, unknown>>({
       toast.error("Could not read file", { description: e instanceof Error ? e.message : String(e) });
       reset();
     } finally {
+      // allow re-selecting the same file by clearing the file input's value
       setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
     }
   };
 
@@ -85,6 +91,9 @@ export function ImportDialog<T = Record<string, unknown>>({
               <Button size="sm" variant="outline" onClick={() => downloadTemplateXlsx(schema)}>
                 <FileSpreadsheet className="h-4 w-4 mr-1.5" /> Excel template
               </Button>
+              <Button size="sm" variant="outline" onClick={() => downloadSampleCsv(schema)}>
+                <FileSpreadsheet className="h-4 w-4 mr-1.5" /> Sample CSV
+              </Button>
             </div>
           </div>
 
@@ -94,6 +103,7 @@ export function ImportDialog<T = Record<string, unknown>>({
               type="file"
               accept=".csv,.xlsx,.xls"
               className="block w-full text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+              onClick={() => { if (inputRef.current) inputRef.current.value = ""; }}
               onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
             />
             {fileName && (
@@ -121,6 +131,33 @@ export function ImportDialog<T = Record<string, unknown>>({
                 )}
                 <Badge variant="secondary">{result.totalRows} total</Badge>
               </div>
+
+              {/* Parsed preview for debugging */}
+              {preview && preview.length > 0 && (
+                <div className="rounded-lg border border-border p-2 overflow-auto text-xs">
+                  <div className="font-medium mb-2">Parsed preview (first {preview.length} rows)</div>
+                  <div className="overflow-auto">
+                    <table className="w-full text-xs">
+                      <thead className="bg-muted/50 sticky top-0">
+                        <tr>
+                          {Object.keys(preview[0]).map((h) => (
+                            <th key={h} className="px-2 py-1 text-left">{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {preview.map((r, ri) => (
+                          <tr key={ri} className="border-t border-border">
+                            {Object.keys(preview[0]).map((h) => (
+                              <td key={h} className="px-2 py-1">{String(r[h] ?? "")}</td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
 
               {result.invalid.length > 0 && (
                 <div className="rounded-lg border border-border max-h-56 overflow-auto">

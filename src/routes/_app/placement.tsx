@@ -4,7 +4,8 @@ import { PageHeader } from "@/components/ui-blocks/PageHeader";
 import { KpiCard } from "@/components/ui-blocks/KpiCard";
 import { Briefcase, TrendingUp, Building2, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { employers, employmentTimeline, kpis, departments } from "@/lib/mock-data";
+import { employers } from "@/lib/mock-data";
+import { useLiveData } from "@/lib/use-live-data";
 
 export const Route = createFileRoute("/_app/placement")({
   component: PlacementPage,
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/_app/placement")({
 const chartAxis = { fontSize: 11, fill: "hsl(var(--muted-foreground))" };
 
 function PlacementPage() {
+  const { employmentTimeline, kpis, departments } = useLiveData();
   const byDept = departments.slice(0, 6).map((d) => ({
     dept: d.name.split(" ")[0],
     rate: Math.round(45 + Math.random() * 35),

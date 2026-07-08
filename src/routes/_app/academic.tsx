@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/ui-blocks/PageHeader";
 import { BookOpenCheck, Calendar } from "lucide-react";
+import { useLiveData } from "@/lib/use-live-data";
 import { KpiCard } from "@/components/ui-blocks/KpiCard";
 
 export const Route = createFileRoute("/_app/academic")({
@@ -9,9 +10,10 @@ export const Route = createFileRoute("/_app/academic")({
 });
 
 function AcademicPage() {
+  const { kpis } = useLiveData();
   return (
     <div className="p-6 space-y-6 max-w-[1600px] mx-auto">
-      <PageHeader title="Academic" description="Units, modules, attendance and academic progress across departments." />
+      <PageHeader title="Academic" description={`Units, modules, attendance and academic progress across departments · ${kpis.totalStudents} students`} />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <KpiCard label="Active Modules" value={148} icon={BookOpenCheck} tone="primary" />
         <KpiCard label="Attendance Rate" value="92%" icon={Calendar} tone="positive" delta={2.1} />

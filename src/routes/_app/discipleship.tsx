@@ -3,7 +3,7 @@ import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContaine
 import { PageHeader } from "@/components/ui-blocks/PageHeader";
 import { KpiCard } from "@/components/ui-blocks/KpiCard";
 import { HeartHandshake, Users, TrendingUp, AlertCircle } from "lucide-react";
-import { discipleshipStages, kpis, departments } from "@/lib/mock-data";
+import { useLiveData } from "@/lib/use-live-data";
 
 export const Route = createFileRoute("/_app/discipleship")({
   component: DiscipleshipPage,
@@ -13,6 +13,8 @@ export const Route = createFileRoute("/_app/discipleship")({
 const chartAxis = { fontSize: 11, fill: "hsl(var(--muted-foreground))" };
 
 function DiscipleshipPage() {
+  const { discipleshipStages, kpis, departments } = useLiveData();
+
   const growthOverTime = [
     { term: "T1 24", growing: 280, disc: 120, wandering: 220, lost: 180 },
     { term: "T2 24", growing: 320, disc: 148, wandering: 202, lost: 158 },
